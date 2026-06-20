@@ -1,0 +1,300 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  name          String
+  role          String         @default("CUSTOMER") // CUSTOMER, ADVISOR, ADMIN
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  refreshTokens RefreshToken[]
+  customer      CustomerProfile?
+  activityLogs  ActivityLog[]
+  sentMessages  Message[]      @relation("SentMessages")
+  rcvdMessages  Message[]      @relation("ReceivedMessages")
+  blogAuthor    Blog[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model CustomerProfile {
+  id               String                 @id @default(uuid())
+  userId           String                 @unique
+  user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone            String?
+  city             String?
+  occupation       String?
+  annualIncome     Float?
+  dateOfBirth      DateTime?
+  gender           String?
+  maritalStatus    String?
+  childrenCount    Int                    @default(0)
+  loansAmount      Float                  @default(0)
+  riskAppetite     String?
+  emergencySavings Float                  @default(0)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  appointments     Appointment[]
+  reports          NeedsAnalysisReport[]
+  calculations     PremiumCalculation[]
+  documents        Document[]
+  testimonials     Testimonial[]
+  notes            AdvisorNote[]
+}
+
+model Lead {
+  id                   String        @id @default(uuid())
+  name                 String
+  email                String
+  phone                String
+  city                 String
+  occupation           String?
+  income               Float?
+  status               String        @default("INTERESTED") // INTERESTED, FOLLOW_UP, NEGOTIATION, CLOSED, LOST
+  insuranceType        String
+  coverageRequired     Float?
+  preferredContactTime String?
+  notes                String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  quoteRequests        QuoteRequest[]
+  followUps            FollowUp[]
+  notesHistory         AdvisorNote[]
+}
+
+model Appointment {
+  id           String            @id @default(uuid())
+  customerId   String?
+  customer     CustomerProfile?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  advisorId    String?           // References the User id of an Advisor
+  name         String            // Fallback name for non-registered users
+  email        String
+  phone        String
+  type         String            @default("PHONE") // PHONE, VIDEO, OFFICE, HOME
+  status       String            @default("PENDING") // PENDING, APPROVED, COMPLETED, CANCELLED
+  date         DateTime
+  timeSlot     String
+  purpose      String
+  notes        String?
+  feedback     String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  followUps    FollowUp[]
+}
+
+model InsuranceCategory {
+  id                String   @id @default(uuid())
+  slug              String   @unique
+  name              String
+  overview          String
+  benefits          String   // JSON string of benefits array
+  whoShouldBuy      String   // JSON string of target audience
+  eligibility       String   // JSON string of eligibility criteria
+  myths             String   // JSON string of myths & realities
+  faqs              String   // JSON string of FAQs
+  documentsRequired String   // JSON string of required documents
+  claimProcess      String
+  thingsToConsider  String   // JSON string of key considerations
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model NeedsAnalysisReport {
+  id         String           @id @default(uuid())
+  customerId String?
+  customer   CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  answers    String           // JSON string of answers
+  reportData String           // JSON string of report
+  createdAt  DateTime         @default(now())
+}
+
+model PremiumCalculation {
+  id         String           @id @default(uuid())
+  customerId String?
+  customer   CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  inputs     String           // JSON string of age, smoker, coverage etc
+  results    String           // JSON string of premium estimates
+  createdAt  DateTime         @default(now())
+}
+
+model QuoteRequest {
+  id                   String       @id @default(uuid())
+  leadId               String?
+  lead                 Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  name                 String
+  email                String
+  phone                String
+  city                 String
+  occupation           String?
+  income               Float?
+  insuranceType        String
+  coverageRequired     Float?
+  preferredContactTime String?
+  notes                String?
+  status               String       @default("PENDING") // PENDING, RESPONDED, CLOSED
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+}
+
+model Document {
+  id                 String          @id @default(uuid())
+  customerId         String
+  customer           CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  name               String
+  type               String          // PAN, AADHAAR, MEDICAL, INCOME, IDENTITY, ADDRESS, OTHER
+  url                String
+  secureUrl          String
+  cloudinaryPublicId String?
+  status             String          @default("PENDING") // PENDING, VERIFIED, REJECTED
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
+
+model Blog {
+  id             String       @id @default(uuid())
+  slug           String       @unique
+  title          String
+  content        String
+  summary        String
+  category       String       // INSURANCE, FINANCE, HEALTH, INVESTMENT, RETIREMENT, TAX_SAVING
+  tags           String?      // JSON string array
+  status         String       @default("DRAFT") // DRAFT, PUBLISHED, SCHEDULED
+  publishedAt    DateTime?
+  authorId       String
+  author         User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Testimonial {
+  id         String            @id @default(uuid())
+  customer   CustomerProfile?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerId String?
+  name       String
+  role       String?
+  review     String
+  rating     Int
+  status     String            @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+}
+
+model FAQ {
+  id        String   @id @default(uuid())
+  category  String
+  question  String
+  answer    String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model KnowledgeArticle {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  category  String
+  title     String
+  content   String
+  summary   String
+  keywords  String?  // JSON string array
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model AIChatHistory {
+  id             String   @id @default(uuid())
+  userId         String?
+  conversationId String
+  role           String   // user, model
+  message        String
+  createdAt      DateTime @default(now())
+}
+
+model FollowUp {
+  id            String      @id @default(uuid())
+  leadId        String
+  lead          Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  scheduledAt   DateTime
+  notes         String?
+  status        String      @default("PENDING") // PENDING, COMPLETED
+  createdAt     DateTime    @default(now())
+}
+
+model AdvisorNote {
+  id         String           @id @default(uuid())
+  customerId String?
+  customer   CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  leadId     String?
+  lead       Lead?            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  authorId   String
+  note       String
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+}
+
+model Setting {
+  key         String  @id
+  value       String
+  description String?
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
