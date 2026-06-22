@@ -305,7 +305,7 @@ router.get('/history', authenticateJWT, async (req: AuthRequest, res: Response) 
       orderBy: { createdAt: 'desc' }
     });
 
-    const parsedHistory = list.map(item => ({
+    const parsedHistory = list.map((item: any) => ({
       id: item.id,
       inputs: JSON.parse(item.inputs),
       results: JSON.parse(item.results),

@@ -225,7 +225,7 @@ router.post('/contact', async (req, res) => {
 router.get('/settings', async (req, res) => {
   try {
     const list = await db.setting.findMany();
-    const settingsMap = list.reduce((acc, curr) => {
+    const settingsMap = list.reduce((acc: Record<string, string>, curr: any) => {
       acc[curr.key] = curr.value;
       return acc;
     }, {} as Record<string, string>);

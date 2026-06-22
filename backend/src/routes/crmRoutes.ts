@@ -266,12 +266,12 @@ router.get('/customers/:id', authenticateJWT, requireRole(['ADVISOR', 'ADMIN']),
     // Parse JSON columns in reports and calculations before returning
     const parsedCustomer = {
       ...customer,
-      reports: customer.reports.map(r => ({
+      reports: customer.reports.map((r: any) => ({
         ...r,
         answers: JSON.parse(r.answers as string),
         reportData: JSON.parse(r.reportData as string)
       })),
-      calculations: customer.calculations.map(c => ({
+      calculations: customer.calculations.map((c: any) => ({
         ...c,
         inputs: JSON.parse(c.inputs as string),
         results: JSON.parse(c.results as string)
