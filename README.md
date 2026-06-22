@@ -1,6 +1,6 @@
-# PolicySphere Advisors SaaS Platform
+# Policy Advisors SaaS Platform
 
-**PolicySphere Advisors** is a complete, production-ready SaaS-quality insurance advisory web platform built for independent insurance advisors (specifically highlighting the real licensing and portfolios of **Dimple Shah** and **Bharat Shah**).
+**Policy Advisors** is a complete, production-ready SaaS-quality insurance advisory web platform built for independent insurance advisors (specifically highlighting the real licensing and portfolios of **Dimple Shah** and **Bharat Shah**).
 
 This platform acts as an educational and tools portal, enabling visitors to compare insurance categories, calculate actuarial premiums, perform personal financial needs assessments, book slots, and upload KYC files.
 
