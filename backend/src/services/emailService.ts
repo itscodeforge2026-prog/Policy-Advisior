@@ -108,6 +108,20 @@ export const sendQuoteConfirmation = async (email: string, name: string, insuran
   return sendMail(email, subject, html);
 };
 
+export const sendRegistrationConfirmation = async (email: string, name: string) => {
+  const subject = `Welcome to Policy Advisor!`;
+  const html = `
+    <div style="font-family: sans-serif; padding: 20px; color: #333;">
+      <h2 style="color: #2563eb;">Welcome ${name},</h2>
+      <p>Thank you for registering an account with <strong>Policy Advisor</strong>.</p>
+      <p>You can now log in to access your customer dashboard, calculate premium loads, view advisor recommendations, and manage your booked consultations.</p>
+      <p>If you have any questions or would like to schedule a direct session, feel free to call us at <strong>9825429228</strong>.</p>
+      <p>Best regards,<br/><strong>Dimple Shah & Bharat Shah</strong><br/>Policy Advisor Team</p>
+    </div>
+  `;
+  return sendMail(email, subject, html);
+};
+
 export const sendAdvisorNotification = async (subject: string, html: string) => {
   const finalHtml = `
     <div style="font-family: sans-serif; padding: 20px; color: #333; border-top: 4px solid #0ea0eb;">

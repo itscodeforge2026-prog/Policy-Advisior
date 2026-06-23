@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import db from '../services/db';
 import { loginSchema, registerSchema } from 'shared';
 import { AuthRequest, authenticateJWT } from '../middleware/authMiddleware';
+import { sendRegistrationConfirmation } from '../services/emailService';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'Policy Advisor_access_token_secret_key_12345';
@@ -86,6 +87,9 @@ router.post('/register', async (req, res) => {
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
+    // Send email confirmation to user
+    await sendRegistrationConfirmation(user.email, user.name);
 
     return res.status(201).json({
       message: 'User registered successfully',
