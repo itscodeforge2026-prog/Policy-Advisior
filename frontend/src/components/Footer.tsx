@@ -24,8 +24,9 @@ export const Footer: React.FC = () => {
       setSubscribed(true);
       setEmail('');
       alert("Reservation Confirmed!");
-    } catch (err) {
+    } catch (err: any) {
       console.error('Subscription failed', err);
+      alert("Failed to subscribe: " + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }

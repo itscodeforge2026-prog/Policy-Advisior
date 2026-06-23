@@ -38,7 +38,9 @@ export const AboutPage: React.FC = () => {
       setSuccess(true);
       alert("Reservation Confirmed!");
     } catch (err: any) {
-      setError(err || 'Failed to book slot. Please try again.');
+      const errMsg = err.response?.data?.message || err.message || 'Failed to book slot. Please try again.';
+      setError(errMsg);
+      alert("Failed to book consultation: " + errMsg);
     } finally {
       setLoading(false);
     }

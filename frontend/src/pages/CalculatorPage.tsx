@@ -97,8 +97,9 @@ export const CalculatorPage: React.FC = () => {
 
       // Transition to Step 2
       setCurrentStep(2);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert("Failed to calculate quote: " + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -182,7 +183,9 @@ export const CalculatorPage: React.FC = () => {
       setBookingSuccess(true);
       alert("Reservation Confirmed!");
     } catch (err: any) {
-      setBookingError(err || 'Failed to book slot. Please try again.');
+      const errMsg = err.response?.data?.message || err.message || 'Failed to book slot. Please try again.';
+      setBookingError(errMsg);
+      alert("Failed to book consultation: " + errMsg);
     } finally {
       setBookingLoading(false);
     }

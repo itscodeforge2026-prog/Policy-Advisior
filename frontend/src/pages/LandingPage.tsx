@@ -47,8 +47,9 @@ export const LandingPage: React.FC = () => {
       setContactSuccess(true);
       setContactForm({ name: '', email: '', phone: '', message: '' });
       alert("Reservation Confirmed!");
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert("Failed to connect to backend: " + (err.response?.data?.message || err.message));
     } finally {
       setContactLoading(false);
     }
