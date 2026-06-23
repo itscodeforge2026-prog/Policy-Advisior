@@ -24,11 +24,30 @@ dotenvConfig.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://policy-advisior-frontend.vercel.app'
+];
+if (process.env.FRONTEND_URL) {
+  const extra = process.env.FRONTEND_URL.split(',').map(o => o.trim());
+  allowedOrigins.push(...extra);
+}
+
 // Security Middleware
 app.use(helmet());
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // standard React Vite dev server URLs
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, postman, or server-to-server)
+      if (!origin) return callback(null, true);
+      
+      // Match explicit origins or any vercel.app subdomain
+      if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app') || origin.substring(origin.indexOf('://') + 3).endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
