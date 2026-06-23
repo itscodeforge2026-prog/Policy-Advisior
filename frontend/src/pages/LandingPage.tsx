@@ -46,6 +46,7 @@ export const LandingPage: React.FC = () => {
       await api.post('/support/contact', contactForm);
       setContactSuccess(true);
       setContactForm({ name: '', email: '', phone: '', message: '' });
+      alert("Reservation Confirmed!");
     } catch (err) {
       console.error(err);
     } finally {

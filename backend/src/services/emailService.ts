@@ -10,8 +10,8 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendMail = async (to: string, subject: string, html: string, text?: string) => {
-  // If no SMTP credentials are provided, fall back to console logging
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  // If no SMTP credentials are provided or if they are mock values, fall back to console logging
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || process.env.EMAIL_USER === 'mock_user' || process.env.EMAIL_USER.includes('mock')) {
     console.log(`================[ MOCK EMAIL SENT ]================`);
     console.log(`TO: ${to}`);
     console.log(`SUBJECT: ${subject}`);

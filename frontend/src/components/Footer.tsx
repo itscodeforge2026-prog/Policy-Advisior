@@ -23,6 +23,7 @@ export const Footer: React.FC = () => {
       });
       setSubscribed(true);
       setEmail('');
+      alert("Reservation Confirmed!");
     } catch (err) {
       console.error('Subscription failed', err);
     } finally {

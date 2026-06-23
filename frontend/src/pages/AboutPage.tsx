@@ -36,6 +36,7 @@ export const AboutPage: React.FC = () => {
     try {
       await api.post('/appointments/book', form);
       setSuccess(true);
+      alert("Reservation Confirmed!");
     } catch (err: any) {
       setError(err || 'Failed to book slot. Please try again.');
     } finally {
