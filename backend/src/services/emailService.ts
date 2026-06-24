@@ -139,3 +139,39 @@ export const sendAdvisorNotification = async (subject: string, html: string) => 
   await sendMail('dimple_shah@yahoo.in', subject, finalHtml);
   await sendMail('bharatshah_1969@yahoo.in', subject, finalHtml);
 };
+
+export const sendSubscriptionNotification = async (subscriberEmail: string) => {
+  const subject = `New Newsletter Subscription - Policy Advisor`;
+  const html = `
+    <div style="font-family: sans-serif; padding: 20px; color: #333; border-top: 4px solid #0ea0eb;">
+      <h2 style="color: #0c486e; font-family: 'Outfit', sans-serif;">New Subscriber Notification</h2>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
+        <p>Dear Bharat Shah,</p>
+        <p>This personal/client has subscribed to your newsletter:</p>
+        <p style="font-size: 16px; font-weight: bold; color: #2563eb;">${subscriberEmail}</p>
+        <p>You have a new subscriber!</p>
+      </div>
+      <p style="font-size: 11px; color: #64748b; margin-top: 20px;">
+        This is an automated operational system alert dispatched from Policy Advisor.
+      </p>
+    </div>
+  `;
+  // Send email to Bharat Shah as requested
+  await sendMail('bharatshah_1969@yahoo.in', subject, html);
+};
+
+export const sendSpecificAdvisorNotification = async (advisorEmail: string, advisorName: string, subject: string, html: string) => {
+  const finalHtml = `
+    <div style="font-family: sans-serif; padding: 20px; color: #333; border-top: 4px solid #0ea0eb;">
+      <h2 style="color: #0c486e; font-family: 'Outfit', sans-serif;">Advisor Portal Notification</h2>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
+        <p>Dear ${advisorName},</p>
+        ${html}
+      </div>
+      <p style="font-size: 11px; color: #64748b; margin-top: 20px;">
+        This is an automated operational system alert dispatched from Policy Advisor CRM console.
+      </p>
+    </div>
+  `;
+  await sendMail(advisorEmail, subject, finalHtml);
+};

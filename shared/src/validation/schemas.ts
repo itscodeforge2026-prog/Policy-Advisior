@@ -33,6 +33,7 @@ export const appointmentBookSchema = z.object({
   timeSlot: z.string().min(1, 'Time slot is required'),
   purpose: z.string().min(2, 'Purpose is required'),
   notes: z.string().optional(),
+  advisor: z.string().optional(),
 });
 
 export const premiumCalculateSchema = z.object({

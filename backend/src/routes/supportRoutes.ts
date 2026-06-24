@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import db from '../services/db';
 import { AuthRequest, authenticateJWT, requireRole } from '../middleware/authMiddleware';
-import { sendAdvisorNotification } from '../services/emailService';
+import { sendAdvisorNotification, sendSubscriptionNotification } from '../services/emailService';
 
 const router = Router();
 
@@ -198,18 +198,35 @@ router.post('/contact', async (req, res) => {
         }
       });
     }
-    // Send email alert to advisors
-    await sendAdvisorNotification(
-      `New Website Contact Form Message - ${name}`,
-      `
-      <h3>New Lead Message Details</h3>
-      <p><strong>Lead Name:</strong> ${name}</p>
-      <p><strong>Email Address:</strong> ${email}</p>
-      <p><strong>Mobile Number:</strong> ${phone}</p>
-      <p><strong>Message / Inquiry:</strong></p>
-      <p style="white-space: pre-wrap;">${message}</p>
-      `
-    );
+    // Send email alert
+    const isSubscription = name === 'Newsletter Subscriber' || message.includes('Newsletter subscription request');
+    if (isSubscription) {
+      // Save to NewsletterSubscriber model
+      try {
+        await db.newsletterSubscriber.upsert({
+          where: { email },
+          update: {},
+          create: { email }
+        });
+      } catch (dbErr) {
+        console.error('Error saving newsletter subscriber:', dbErr);
+      }
+
+      // Send dedicated email to Bharat Shah
+      await sendSubscriptionNotification(email);
+    } else {
+      await sendAdvisorNotification(
+        `New Website Contact Form Message - ${name}`,
+        `
+        <h3>New Lead Message Details</h3>
+        <p><strong>Lead Name:</strong> ${name}</p>
+        <p><strong>Email Address:</strong> ${email}</p>
+        <p><strong>Mobile Number:</strong> ${phone}</p>
+        <p><strong>Message / Inquiry:</strong></p>
+        <p style="white-space: pre-wrap;">${message}</p>
+        `
+      );
+    }
 
     return res.json({ message: 'Message sent successfully. Our team will get back to you shortly!' });
   } catch (error) {

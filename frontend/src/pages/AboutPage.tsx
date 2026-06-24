@@ -14,6 +14,7 @@ export const AboutPage: React.FC = () => {
     timeSlot: '10:00 AM - 11:00 AM',
     purpose: 'General Life Insurance Review',
     notes: '',
+    advisor: 'Bharat Shah',
   });
 
   const [loading, setLoading] = useState(false);
@@ -234,7 +235,18 @@ export const AboutPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500 dark:text-slate-400 font-medium">Select Advisor</label>
+                    <select
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary text-slate-800 dark:text-slate-300"
+                      value={form.advisor}
+                      onChange={(e) => setForm({ ...form, advisor: e.target.value })}
+                    >
+                      <option value="Bharat Shah">Bharat Shah (bharatshah_1969@yahoo.in)</option>
+                      <option value="Dimple Shah">Dimple Shah (dimple_shah@yahoo.in)</option>
+                    </select>
+                  </div>
                   <div className="space-y-1">
                     <label className="text-xs text-slate-500 dark:text-slate-400 font-medium">Meeting Mode</label>
                     <select

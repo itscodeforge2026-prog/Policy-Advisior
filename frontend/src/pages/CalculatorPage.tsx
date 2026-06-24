@@ -51,6 +51,7 @@ export const CalculatorPage: React.FC = () => {
     timeSlot: '10:00 AM - 11:00 AM',
     purpose: '',
     notes: '',
+    advisor: 'Dimple Shah',
   });
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -88,6 +89,7 @@ export const CalculatorPage: React.FC = () => {
         ...prev,
         purpose: `Consultation for ${inputs.policyName.replace(/_/g, ' ')}`,
         notes: `Selected Policy: ${inputs.policyName}\nSum Assured: ₹${inputs.coverage.toLocaleString('en-IN')}\nEst. Annual Premium: ₹${res.data.results.annualPremium.toLocaleString('en-IN')}/Yr\nRisk Score: ${res.data.results.riskScore}/100`,
+        advisor: inputs.policyName.toUpperCase().startsWith('LIC_') ? 'Bharat Shah' : 'Dimple Shah',
       }));
 
       if (user) {
@@ -133,6 +135,7 @@ export const CalculatorPage: React.FC = () => {
           ...prev,
           purpose: `Consultation for ${activePolicy.replace(/_/g, ' ')}`,
           notes: `Selected Policy: ${activePolicy}\nSum Assured: ₹${inputs.coverage.toLocaleString('en-IN')}\nEst. Annual Premium: ₹${res.data.results.annualPremium.toLocaleString('en-IN')}/Yr\nRisk Score: ${res.data.results.riskScore}/100`,
+          advisor: activePolicy.toUpperCase().startsWith('LIC_') ? 'Bharat Shah' : 'Dimple Shah',
         }));
 
         setCurrentStep(2); // Go directly to illustration step if policy is pre-selected

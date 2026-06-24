@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import db from '../services/db';
 import { AuthRequest, authenticateJWT, requireRole } from '../middleware/authMiddleware';
 import { appointmentBookSchema } from 'shared';
-import { sendAppointmentConfirmation, sendAppointmentStatusUpdate, sendAdvisorNotification } from '../services/emailService';
+import { sendAppointmentConfirmation, sendAppointmentStatusUpdate, sendAdvisorNotification, sendSpecificAdvisorNotification } from '../services/emailService';
 
 const router = Router();
 
@@ -64,11 +64,32 @@ router.post('/book', optionalAuth, async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // Determine Advisor
+    const requestedAdvisor = parsed.data.advisor;
+    const advisorName = requestedAdvisor || (purpose.toLowerCase().includes('lic') || purpose.toLowerCase().includes('pension') 
+      ? 'Bharat Shah' 
+      : 'Dimple Shah');
+    const advisorEmail = advisorName === 'Bharat Shah' ? 'bharatshah_1969@yahoo.in' : 'dimple_shah@yahoo.in';
+
+    // Find the Advisor user id in the database
+    let advisorId: string | null = null;
+    try {
+      const advisorUser = await db.user.findFirst({
+        where: { email: advisorEmail }
+      });
+      if (advisorUser) {
+        advisorId = advisorUser.id;
+      }
+    } catch (dbErr) {
+      console.error('Advisor lookup error:', dbErr);
+    }
+
     // Create the appointment
     const parsedDate = new Date(date);
     const appointment = await db.appointment.create({
       data: {
         customerId,
+        advisorId,
         name,
         email,
         phone,
@@ -93,15 +114,29 @@ router.post('/book', optionalAuth, async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // Default advisor is Dimple Shah
-    const advisorName = purpose.toLowerCase().includes('lic') || purpose.toLowerCase().includes('pension') 
-      ? 'Bharat Shah' 
-      : 'Dimple Shah';
-
     // Send confirmation email
     await sendAppointmentConfirmation(email, name, date, timeSlot, type, advisorName);
 
-    // Send notification email to both advisors
+    // Send specific advisor notification (as requested, Bharat Shah/Dimple Shah gets direct email)
+    await sendSpecificAdvisorNotification(
+      advisorEmail,
+      advisorName,
+      `New Appointment Booked - ${name}`,
+      `
+      <h3>New Consultation Scheduled</h3>
+      <p>Someone had booked a slot with you. Here are the details:</p>
+      <p><strong>Client Name:</strong> ${name}</p>
+      <p><strong>Email Address:</strong> ${email}</p>
+      <p><strong>Mobile Number:</strong> ${phone}</p>
+      <p><strong>Meeting Mode:</strong> ${type}</p>
+      <p><strong>Scheduled Date:</strong> ${date}</p>
+      <p><strong>Time Slot:</strong> ${timeSlot}</p>
+      <p><strong>Purpose of Meeting:</strong> ${purpose}</p>
+      <p><strong>Client Notes:</strong> ${notes || 'None'}</p>
+      `
+    );
+
+    // Send notification email to both advisors as fallback for portal sync
     await sendAdvisorNotification(
       `New Appointment Booked - ${name}`,
       `
